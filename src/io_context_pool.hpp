@@ -83,14 +83,55 @@ class multi_io_multithread_policy
   public:
     void init(std::size_t num_pool)
     {
+        for(std::size_t i = 0;i<num_pool; ++i)
+        {
+            auto io = io_context_vec_.emplace_back(std::make_shared<io_context>());
+            work_guard_vec_.emplace_back(std::make_shared<work_guard_type>(boost::asio::make_work_gurad(*io)));
+        }
     }
 
-    void stop() {}
+    void stop() 
+    {
+        for(auto &io :io_context_vec_)
+        {
+            io->stop();
+        }
+    }
 
-    void        run() {}
-    io_context &get_io_context() {}
+    void run()
+    {
+        std::vector<std::shared_ptr<std::thread> > threads;
+        for(auto& io: io_context_vec_)
+        {
+            threads.emplace_back(std::make_shared(
+                [&io]()
+                {
+                    io->run();
+                }
+            ));
+        }
+    }
+
+
+    io_context &get_io_context()
+    {
+        auto & io = *io_context_vec_.at(current_io_context_);
+        ++current_io_context_;
+        if(current_io_context_ == io_context_vec_.size())
+        {
+            current_io_context_ = 0;
+        }
+        return io;
+    }
 
   private:
+    using io_context_ptr = std::shared_ptr<io_context>;
+    using work_guard_type = boost::asio::executor_work_guard<io_context::executor_type>;
+    using work_guard_ptr = std::shared_ptr<work_guard_type>;
+    
+    std::vector<io_context_ptr>  io_context_vec_;
+    std::vector<work_guard_ptr>  work_guard_vec_;
+    std::size_t current_io_context_ = {0};
 };
 
 template <class pool_policy>
