@@ -31,7 +31,7 @@ class chat_session
     {
         boost::asio::async_read_until(socket_, in_packet_, '\n',
                                       [self = shared_from_this()](const boost::system::error_code &ec, std::size_t bytes_read) {
-                                          self_ > read_packet_done(ec, bytes_read);
+                                          self->read_packet_done(ec, bytes_read);
                                       });
     }
     void read_packet_done(const boost::system::error_code &ec, std::size_t bytes_read)

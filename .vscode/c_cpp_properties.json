@@ -3,11 +3,13 @@
         {
             "name": "MinGW",
             "intelliSenseMode": "gcc-x64",
-            "compilerPath": "D:/Software/msys64/mingw64/bin/gcc.exe",
+            "compilerPath": "c:/soft/msys64/mingw64/bin/gcc.exe",
             "includePath": [
                 "${workspaceFolder}"
             ],
-            "defines": ["BOOST_ASIO_NO_DEPRECATED"],
+            "defines": [
+                "BOOST_ASIO_NO_DEPRECATED"
+            ],
             "browse": {
                 "path": [
                     "${workspaceFolder}"
@@ -16,7 +18,8 @@
                 "databaseFilename": ""
             },
             "cStandard": "c11",
-            "cppStandard": "c++17"
+            "cppStandard": "c++17",
+            "configurationProvider": "vector-of-bool.cmake-tools"
         }
     ],
     "version": 4

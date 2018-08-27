@@ -4,6 +4,7 @@
 #include <boost/asio.hpp>
 #include <boost/noncopyable.hpp>
 #include <vector>
+#include <iostream>
 
 #include "io_context_pool.hpp"
 
@@ -38,6 +39,7 @@ template <typename Session>
   private:
     void handle_connect(shared_handler_t handler, const boost::system::error_code &ec)
     {
+        //std::cerr << ec.message() << "\n";
         if (!ec)
         {
             handler->start();
@@ -47,14 +49,15 @@ template <typename Session>
     void do_accept()
     {
         auto handler = std::make_shared<Session>(io_pool_.get_io_context());
-        acceptor_.async_wait(handler->socket(),
+        acceptor_.async_accept(handler->socket(),
                               [this, handler](auto ec) { this->handle_connect(handler, ec); });
     }
 
   private:
     io_context_pool io_pool_;
-    signal_handle   signal_;
+    
     tcp::acceptor   acceptor_;
+    signal_handle   signal_;
 };
 
 #endif // GENERIC_SERVICE_HPP

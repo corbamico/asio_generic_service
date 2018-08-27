@@ -86,7 +86,7 @@ class multi_io_multithread_policy
         for(std::size_t i = 0;i<num_pool; ++i)
         {
             auto io = io_context_vec_.emplace_back(std::make_shared<io_context>());
-            work_guard_vec_.emplace_back(std::make_shared<work_guard_type>(boost::asio::make_work_gurad(*io)));
+            work_guard_vec_.emplace_back(std::make_shared<work_guard_type>(boost::asio::make_work_guard(*io)));
         }
     }
 
@@ -103,12 +103,16 @@ class multi_io_multithread_policy
         std::vector<std::shared_ptr<std::thread> > threads;
         for(auto& io: io_context_vec_)
         {
-            threads.emplace_back(std::make_shared(
-                [&io]()
+            threads.emplace_back(std::make_shared<std::thread>(
+                [io]()
                 {
                     io->run();
                 }
             ));
+        }
+        for(auto& t: threads)
+        {
+            t->join();
         }
     }
 
